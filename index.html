@@ -1,0 +1,1589 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Buildtes • Usta Modu (Saha Prototip)</title>
+  <style>
+    :root{
+      --bg:#0b1220; --muted:#9aa4b2; --text:#e5e7eb; --line:rgba(255,255,255,.08);
+      --primary:#f97316; --primary2:#fb923c; --good:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+      --shadow:0 12px 35px rgba(0,0,0,.35); --r2:24px; --max:1040px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:radial-gradient(1200px 800px at 15% 10%, rgba(249,115,22,.14), transparent 55%),
+                 radial-gradient(900px 700px at 85% 20%, rgba(59,130,246,.10), transparent 55%),
+                 var(--bg); color:var(--text); min-height:100vh}
+    .wrap{max-width:var(--max);margin:0 auto;padding:18px 14px 92px}
+    .topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);
+      background:linear-gradient(to bottom, rgba(11,18,32,.86), rgba(11,18,32,.55));
+      border-bottom:1px solid var(--line)}
+    .topbar .inner{max-width:var(--max);margin:0 auto;padding:14px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,var(--primary),#fbbf24);
+      display:grid;place-items:center;color:#111827;font-weight:900;box-shadow:0 10px 30px rgba(249,115,22,.22)}
+    .brand h1{font-size:16px;margin:0}
+    .pill{font-size:12px;color:#111827;background:rgba(249,115,22,.95);padding:6px 10px;border-radius:999px;font-weight:800}
+    .iconbtn{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);
+      padding:10px 12px;border-radius:14px;display:flex;align-items:center;gap:8px;cursor:pointer}
+    .iconbtn:active{transform:scale(.99)}
+    .row{display:grid;grid-template-columns:1fr;gap:14px}
+    @media (min-width:900px){.row{grid-template-columns:1.15fr .85fr}}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);border-radius:var(--r2);padding:16px;box-shadow:var(--shadow)}
+    .card.flat{box-shadow:none;background:rgba(255,255,255,.03)}
+    .card h2{margin:0 0 6px;font-size:16px}
+    .sub{margin:0;color:var(--muted);font-size:13px;line-height:1.35}
+    .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    .btn{border:0;cursor:pointer;padding:12px 14px;border-radius:16px;font-weight:800;
+      display:inline-flex;align-items:center;gap:10px;color:#111827;background:linear-gradient(135deg,var(--primary),var(--primary2));
+      box-shadow:0 10px 25px rgba(249,115,22,.20)}
+    .btn.secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line);box-shadow:none;font-weight:700}
+    .btn.ghost{background:transparent;color:var(--muted);border:1px dashed rgba(255,255,255,.14);box-shadow:none;font-weight:700}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .sectionTitle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px}
+    .sectionTitle h3{margin:0;font-size:13px;color:var(--muted);font-weight:800;letter-spacing:.6px;text-transform:uppercase}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .item .meta{display:flex;flex-direction:column;gap:3px}
+    .item .title{font-weight:900}
+    .item .mini{font-size:12px;color:var(--muted)}
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+    .chip{font-size:11px;padding:5px 8px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);font-weight:800}
+    .chip.good{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.25)}
+    .chip.warn{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.25)}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New";font-size:12px;color:var(--muted)}
+    .nav{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(11,18,32,.90);border-top:1px solid var(--line);backdrop-filter:blur(10px)}
+    .nav .inner{max-width:var(--max);margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 12px}
+    .tab{border:1px solid transparent;background:rgba(255,255,255,.03);color:var(--muted);border-radius:16px;padding:10px 10px;font-weight:800;cursor:pointer}
+    .tab.active{color:var(--text);border-color:rgba(249,115,22,.35);background:rgba(249,115,22,.10)}
+    .view{display:none}.view.active{display:block}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:100}
+    .overlay.show{display:flex}
+    .modal{width:min(760px,100%);background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+    .modal .head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .modal .head .t{font-weight:900}
+    .modal .body{padding:16px}
+    .steps{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;font-weight:900}
+    .progress{height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;flex:1}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--primary2))}
+    .grid2{display:grid;grid-template-columns:1fr;gap:10px}
+    @media (min-width:680px){.grid2{grid-template-columns:1fr 1fr}}
+    label{display:block;font-size:12px;color:var(--muted);font-weight:800;margin:8px 0 6px}
+    input,select,textarea{width:100%;padding:12px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(11,18,32,.55);color:var(--text);outline:none}
+    textarea{min-height:84px;resize:vertical}
+    .err{color:#fecaca;font-size:12px;margin-top:6px;display:none}
+    .footer{padding:14px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+    .areaChips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .areaChip{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:900;cursor:pointer}
+    .areaChip.added{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.10)}
+    .small{font-size:12px;color:var(--muted)}
+    .tabs2{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+    .tab2{padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);font-weight:900;cursor:pointer}
+    .tab2.active{color:var(--text);border-color:rgba(249,115,22,.35);background:rgba(249,115,22,.10)}
+    details{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.03);padding:10px 12px}
+    details summary{cursor:pointer;font-weight:900;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    details summary::-webkit-details-marker{display:none}
+    .pill2{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:4px 8px;border-radius:999px}
+    .divider{height:1px;background:var(--line);margin:12px 0}
+    .jobGroup{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .jobRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 10px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02)}
+    .jobRow label{margin:0;color:var(--text);font-size:13px;font-weight:900}
+    .jobRow input[type="checkbox"]{width:18px;height:18px}
+    .hint{font-size:12px;color:var(--muted);line-height:1.35}
+    .backlink{cursor:pointer;color:var(--primary2);font-weight:900;text-decoration:none}
+    .badge{font-size:11px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);font-weight:900}
+    .hr{height:1px;background:var(--line);margin:10px 0}
+    .mediaGrid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:900px){.mediaGrid{grid-template-columns:1fr 1fr}}
+    .imgbox{border:1px dashed rgba(255,255,255,.18);border-radius:18px;background:rgba(0,0,0,.18);padding:10px}
+    .imgbox img, .imgbox canvas{max-width:100%;border-radius:14px;display:block}
+    .smallrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .miniInput{max-width:180px}
+  </style>
+</head>
+<body>
+  <div class="topbar"><div class="inner">
+    <div class="brand">
+      <div class="logo">B</div>
+      <div><h1>Buildtes</h1><div class="pill">USTA MODU</div></div>
+    </div>
+    <button class="iconbtn" id="helpBtn"><span style="font-weight:900">?</span><span class="kbd">Yardım</span></button>
+  </div></div>
+
+  <div class="wrap">
+    <!-- HOME -->
+    <section class="view active" id="viewHome">
+      <div class="row">
+        <div class="card">
+          <h2>Yeni Proje</h2>
+          <p class="sub">Müşterinin alanlarını ekle, işleri seç, ustalara gönder. Teklif + görsel/video proje içinde hazırlanır.</p>
+          <div class="cta">
+            <button class="btn" id="newProjectBtn">➕ Yeni Proje Oluştur</button>
+            <button class="btn secondary" id="howWorksBtn">Nasıl çalışır?</button>
+          </div>
+
+          <div class="sectionTitle"><h3>Devam Edenler</h3><span class="kbd" id="projCount">0 proje</span></div>
+          <div class="list" id="projectList"></div>
+          <div id="emptyState" class="card flat" style="margin-top:10px;display:none">
+            <div style="font-weight:900;margin-bottom:6px">Henüz proje yok.</div>
+            <div class="sub">İlk projenizi oluşturun. Ana sayfa sade, detaylar proje içinde.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Hızlı İşlemler</h2>
+          <p class="sub">Kalabalık yapmaması için küçük tutuldu.</p>
+          <div class="cta">
+            <button class="btn ghost" id="quickInviteBtn">🔗 Son projeden davet linki</button>
+            <button class="btn ghost" id="quickMediaBtn">🎥 Son projede medya</button>
+          </div>
+          <div class="divider"></div>
+          <div class="hint"><strong>Not:</strong> İş kalemleri ve ölçüler ana sayfada değil. Proje → Alanlar içinde açılır.</div>
+        
+        <!-- D) Fiyatlandırma (Proje Sahibi) -->
+        <div id="pdTabPricing" class="pdTab" style="display:none">
+          <div class="sub">Tüm ustaların kalemlerini birleştir veya manuel fiyatlandır.</div>
+          <div class="divider"></div>
+
+          <div class="list" id="pricingList"></div>
+
+          <div class="divider"></div>
+
+          <div class="card flat">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div>
+                <div style="font-weight:900">GENEL TOPLAM</div>
+                <div class="hint">Proje sahibinin nihai teklifi.</div>
+              </div>
+              <div style="font-size:20px;font-weight:900" id="pricingGrand">₺ 0</div>
+            </div>
+          </div>
+
+          <div class="hint" style="margin-top:10px">
+            Not: Burada girilen değerler, usta tekliflerinin üzerine yazabilir (override).
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="view" id="viewProjects">
+      <div class="card">
+        <h2>Projeler</h2>
+        <p class="sub">Tüm projelerini buradan yönet.</p>
+        <div class="cta"><button class="btn" id="newProjectBtn2">➕ Yeni Proje Oluştur</button></div>
+        <div class="sectionTitle"><h3>Liste</h3><span class="kbd" id="projCount2">0 proje</span></div>
+        <div class="list" id="projectList2"></div>
+        <div id="emptyState2" class="card flat" style="margin-top:10px;display:none">
+          <div style="font-weight:900;margin-bottom:6px">Henüz proje yok.</div>
+          <div class="sub">“Yeni Proje Oluştur” ile başlayın.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="view" id="viewProfile">
+      <div class="card">
+        <h2>Profil</h2>
+        <p class="sub">Saha test modu: veriler tarayıcıda saklanır.</p>
+        <div class="divider"></div>
+        <div class="grid2">
+          <div><label>Görünen Ad</label><input id="profileName" placeholder="Örn: Muhammet (Asma Tavan)" /></div>
+          <div><label>Rol</label>
+            <select id="profileRole"><option value="usta">Usta</option><option value="proje_sahibi">Proje Sahibi</option></select>
+          </div>
+        </div>
+        <label>Not</label><textarea id="profileNote" placeholder="Örn: İstanbul / Alçıpan-asmatavan, 30 yıl tecrübe"></textarea>
+        <div class="cta"><button class="btn secondary" id="saveProfileBtn">Kaydet</button><button class="btn ghost" id="resetBtn">Yerel veriyi sıfırla</button></div>
+      </div>
+    </section>
+
+    <!-- PROJECT DETAIL -->
+    <section class="view" id="viewProjectDetail">
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div>
+            <a class="backlink" id="backToList">← Projelere dön</a>
+            <h2 id="pdTitle" style="margin-top:8px">Proje</h2>
+            <div class="sub" id="pdMeta"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span class="chip warn" id="pdStatusChip">Taslak</span>
+            <button class="btn secondary" id="pdSaveBtn">Kaydet</button>
+          </div>
+        </div>
+
+        <div class="tabs2" style="margin-top:14px">
+          <button class="tab2 active" data-pdtab="areas">Alanlar</button>
+          <button class="tab2" data-pdtab="team">Ustalar</button>
+          <button class="tab2" data-pdtab="media">Medya</button>
+          <button class="tab2" data-pdtab="pricing">Fiyatlandırma</button>
+        </div>
+
+        <!-- A) Alanlar > İşler (Accordion) -->
+        <div id="pdTabAreas" class="pdTab">
+          <div class="sub">Alan bazında: ölçü gir → iş seç → alt detaylar otomatik açılır.</div>
+          <div class="divider"></div>
+          <div class="list" id="areasList"></div>
+          <div class="cta"><button class="btn" id="addAreaBtn">➕ Alan ekle</button></div>
+        </div>
+
+        <!-- B) Ustalar davet + kategori link -->
+        <div id="pdTabTeam" class="pdTab" style="display:none">
+          <div class="sub">Her usta sadece kendi kalemini görsün. Link gönder, fiyatı o girsin (demo).</div>
+          <div class="divider"></div>
+
+          <div class="card flat">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div>
+                <div style="font-weight:900">Proje davet linki</div>
+                <div class="hint">Genel link: tüm kalemleri gören proje sahibi için.</div>
+              </div>
+              <button class="btn secondary" id="copyProjectInviteBtn">Kopyala</button>
+            </div>
+            <div class="hr"></div>
+            <div class="kbd" id="projectInvitePreview"></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div style="font-weight:900;margin-bottom:6px">Usta linkleri (kategori bazlı)</div>
+          <div class="hint">Seçili işlere göre otomatik listelenir. Her linkte <span class="kbd">role=usta</span> + <span class="kbd">trade=...</span> bulunur.</div>
+
+          <div class="list" id="tradeInviteList" style="margin-top:10px"></div>
+        </div>
+
+        <!-- C) Before/After + Video -->
+        <div id="pdTabMedia" class="pdTab" style="display:none">
+          <div class="sub">Gerçek before yükle → after (demo) üret → 6 sn video (WebM) indir.</div>
+          <div class="divider"></div>
+
+          <div class="card flat">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div>
+                <div style="font-weight:900">Hangi alanın medyası?</div>
+                <div class="hint">Alan seç, o alana bağlı before/after/video üret.</div>
+              </div>
+              <select id="mediaAreaSelect" class="miniInput"></select>
+            </div>
+          </div>
+
+          <div class="mediaGrid" style="margin-top:12px">
+            <div class="imgbox">
+              <div class="smallrow" style="justify-content:space-between">
+                <div class="badge">BEFORE</div>
+                <label class="btn secondary" style="padding:10px 12px;border-radius:14px;cursor:pointer">
+                  📷 Yükle
+                  <input id="beforeFile" type="file" accept="image/*" style="display:none" />
+                </label>
+              </div>
+              <div class="hr"></div>
+              <img id="beforeImg" alt="Before" style="display:none" />
+              <div id="beforeEmpty" class="hint">Henüz before yüklenmedi.</div>
+            </div>
+
+            <div class="imgbox">
+              <div class="smallrow" style="justify-content:space-between">
+                <div class="badge">AFTER</div>
+                <div class="smallrow">
+                  <button class="btn secondary" id="genAfterBtn" style="padding:10px 12px;border-radius:14px">🧠 After Üret</button>
+                </div>
+              </div>
+              <div class="hr"></div>
+              <img id="afterImg" alt="After" style="display:none" />
+              <div id="afterEmpty" class="hint">After üretmek için önce before yükle.</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="card flat">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div>
+                <div style="font-weight:900">Kısa video (6 sn)</div>
+                <div class="hint">Before → After geçişi (crossfade). İndirilebilir WebM.</div>
+              </div>
+              <div class="smallrow">
+                <button class="btn secondary" id="genVideoBtn" style="padding:10px 12px;border-radius:14px">🎥 Video Üret</button>
+                <a class="btn ghost" id="downloadVideoLink" style="padding:10px 12px;border-radius:14px;text-decoration:none;display:none" download="buildtes_before_after.webm">⬇️ İndir</a>
+              </div>
+            </div>
+            <div class="hr"></div>
+            <canvas id="videoCanvas" width="960" height="540" style="width:100%;display:none"></canvas>
+            <div id="videoHint" class="hint">Video üretmek için before + after hazır olmalı.</div>
+          </div>
+
+          <div class="hint" style="margin-top:10px">
+            Not: Bu demo sürümde “after” görseli gerçek AI değildir; before üzerinden iyileştirme efekti uygulanır.
+            Üretim aşamasında bu noktaya gerçek AI servisi bağlanır.
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- USTA MODE (trade-filtered) -->
+    <section class="view" id="viewUsta">
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div>
+            <h2 id="udTitle">Usta Paneli</h2>
+            <div class="sub" id="udMeta"></div>
+            <div class="chips" id="udChips" style="margin-top:8px"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn secondary" id="udSaveBtn">Kaydet</button>
+            <button class="btn ghost" id="udCopyBtn">📩 Özet kopyala</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="card flat">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div>
+              <div style="font-weight:900">Seçili Kalem</div>
+              <div class="hint">Linkteki <span class="kbd">trade</span> parametresine göre filtrelenir.</div>
+            </div>
+            <div class="badge" id="udTradeBadge">—</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="udEmpty" class="card flat" style="display:none">
+          <div style="font-weight:900;margin-bottom:6px">Bu kalem için alan bulunamadı.</div>
+          <div class="sub">Proje sahibinden alanlarda ilgili işi işaretlemesini iste.</div>
+        </div>
+
+        <div class="list" id="udAreaList"></div>
+
+        <div class="divider"></div>
+
+        <div class="card flat">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div>
+              <div style="font-weight:900">Toplam</div>
+              <div class="hint">Aşağıdaki toplam, bu ustanın kendi kalemine aittir.</div>
+            </div>
+            <div style="font-size:18px;font-weight:900" id="udGrandTotal">₺ 0</div>
+          </div>
+        </div>
+
+        <div class="hint" style="margin-top:10px">
+          Not: Bu sürüm “simülasyon”dur. GitHub testinde aynı cihazda localStorage ile çalışır. Gerçek çoklu kullanıcıda bu kayıtlar sunucuya yazılır.
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="nav"><div class="inner">
+    <button class="tab active" data-tab="home">Ana Sayfa</button>
+    <button class="tab" data-tab="projects">Projeler</button>
+    <button class="tab" data-tab="profile">Profil</button>
+  </div></div>
+
+  <!-- HELP -->
+  <div class="overlay" id="helpOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="head"><div class="t">3 adımda teklif</div><button class="iconbtn" id="closeHelp">Kapat</button></div>
+      <div class="body">
+        <div class="list">
+          <div class="item"><div class="meta"><div class="title">1) Proje aç</div><div class="mini">Müşteri + proje tipi + alanlar.</div></div><span class="chip good">Hız</span></div>
+          <div class="item"><div class="meta"><div class="title">2) Alan içinde ölçü + işler</div><div class="mini">Sadece seçince detay açılır (accordion).</div></div><span class="chip warn">Net</span></div>
+          <div class="item"><div class="meta"><div class="title">3) Ustaya link gönder + medya üret</div><div class="mini">Kategori linki + before/after + 6 sn video.</div></div><span class="chip">Sunum</span></div>
+        </div>
+      </div>
+      <div class="footer"><button class="btn" id="helpOk">Tamam</button></div>
+    </div>
+  </div>
+
+  <!-- WIZARD -->
+  <div class="overlay" id="wizardOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="head">
+        <div>
+          <div class="t" id="wizTitle">Yeni Proje</div>
+          <div class="steps"><span id="stepLabel">1/3</span><div class="progress"><div class="bar" id="stepBar"></div></div></div>
+        </div>
+        <button class="iconbtn" id="closeWizard">Kapat</button>
+      </div>
+      <div class="body" id="wizBody"></div>
+      <div class="footer" id="wizFooter"></div>
+    </div>
+  </div>
+
+<script>
+/* ---------- Storage ---------- */
+const LS_KEY="buildtes_v5_projects";
+const LS_PROFILE="buildtes_v5_profile";
+
+const uid=()=> "p_"+Math.random().toString(16).slice(2)+"_"+Date.now().toString(16);
+const loadProjects=()=>{ try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]")}catch(e){return[]} };
+const saveProjects=(l)=> localStorage.setItem(LS_KEY, JSON.stringify(l));
+const loadProfile=()=>{ try{return JSON.parse(localStorage.getItem(LS_PROFILE)||"{}")}catch(e){return{}} };
+const saveProfile=(p)=> localStorage.setItem(LS_PROFILE, JSON.stringify(p));
+
+/* ---------- App State ---------- */
+let projects = loadProjects();
+let currentProjectId = null;
+let currentProject = null;
+
+/* ---------- Helpers ---------- */
+const formatDate=(ts)=>{ try{ const d=new Date(ts); return d.toLocaleString("tr-TR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}) }catch(e){ return "" } };
+const escapeHtml=(s)=> (s||"").toString().replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+const escapeAttr=(s)=> (s||"").toString().replaceAll('"',"&quot;");
+function getStatusChip(status){
+  if(status==="Taslak") return '<span class="chip warn">Taslak</span>';
+  if(status==="Ustalarda") return '<span class="chip">Ustalarda</span>';
+  if(status==="Teklif Hazır") return '<span class="chip good">Teklif Hazır</span>';
+  return `<span class="chip">${escapeHtml(status||"")}</span>`;
+}
+function getTradeLabel(key){
+  return ({
+    asma_tavan:"Asma Tavan",
+    siva:"Sıva",
+    boya:"Boya",
+    elektrik:"Elektrik",
+    aydinlatma:"Aydınlatma",
+    mutfak:"Mutfak Dolabı",
+    fayans:"Fayans/Seramik",
+    parke:"Parke/Laminat"
+  })[key] || key;
+}
+function selectedTradesFromProject(p){
+  const trades=new Set();
+  (p.areas||[]).forEach(a=>{
+    Object.entries(a.jobs||{}).forEach(([k,v])=>{ if(v) trades.add(k); });
+  });
+  return Array.from(trades);
+}
+
+/* ---------- Bottom Nav ---------- */
+const views={
+  home:document.getElementById("viewHome"),
+  projects:document.getElementById("viewProjects"),
+  profile:document.getElementById("viewProfile"),
+  projectDetail:document.getElementById("viewProjectDetail"),
+  usta:document.getElementById("viewUsta")
+};
+function setView(name){
+  Object.values(views).forEach(v=>v.classList.remove("active"));
+  const target = (name==="projectDetail") ? views.projectDetail : (name==="usta" ? views.usta : views[name]);
+  target.classList.add("active");
+
+  // bottom tabs are hidden in usta mode
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+  if(name==="projectDetail"){
+    document.querySelector('.tab[data-tab="projects"]').classList.add("active");
+  } else if(name==="usta"){
+    // keep none active
+  } else {
+    document.querySelector('.tab[data-tab="'+name+'"]').classList.add("active");
+  }
+
+  if(name==="home"||name==="projects") renderLists();
+}
+document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>setView(btn.dataset.tab)));
+
+/* ---------- Help ---------- */
+const helpOverlay=document.getElementById("helpOverlay");
+const openHelp=()=>helpOverlay.classList.add("show");
+const closeHelp=()=>helpOverlay.classList.remove("show");
+document.getElementById("helpBtn").onclick=openHelp;
+document.getElementById("howWorksBtn").onclick=openHelp;
+document.getElementById("closeHelp").onclick=closeHelp;
+document.getElementById("helpOk").onclick=closeHelp;
+helpOverlay.addEventListener("click",(e)=>{ if(e.target===helpOverlay) closeHelp(); });
+
+/* ---------- Lists ---------- */
+function renderLists(){
+  projects=loadProjects();
+  const list1=document.getElementById("projectList");
+  const list2=document.getElementById("projectList2");
+  list1.innerHTML=""; list2.innerHTML="";
+  document.getElementById("projCount").textContent=`${projects.length} proje`;
+  document.getElementById("projCount2").textContent=`${projects.length} proje`;
+  document.getElementById("emptyState").style.display=projects.length?"none":"block";
+  document.getElementById("emptyState2").style.display=projects.length?"none":"block";
+
+  projects.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).forEach(p=>{
+    const areaCount=(p.areas||[]).length;
+    const chips=`<div class="chips">${getStatusChip(p.status||"Taslak")}<span class="chip">${areaCount} alan</span><span class="chip">${escapeHtml(p.type||"")}</span></div>`;
+    const node=document.createElement("div"); node.className="item";
+    node.innerHTML=`<div class="meta">
+        <div class="title">${escapeHtml(p.name||"İsimsiz Proje")}</div>
+        <div class="mini">${escapeHtml(p.customer||"")}${p.customer?" • ":""}${formatDate(p.updatedAt||p.createdAt)}</div>
+        ${chips}
+      </div>
+      <button class="btn secondary" style="padding:10px 12px;border-radius:14px" data-open="${p.id}">Devam Et</button>`;
+    const node2=node.cloneNode(true);
+    list1.appendChild(node); list2.appendChild(node2);
+  });
+  document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openProject(b.dataset.open));
+}
+
+/* ---------- Wizard ---------- */
+const wizardOverlay=document.getElementById("wizardOverlay");
+const wizBody=document.getElementById("wizBody");
+const wizFooter=document.getElementById("wizFooter");
+const stepBar=document.getElementById("stepBar");
+const stepLabel=document.getElementById("stepLabel");
+let wiz={step:1,draft:null};
+
+function openWizard(){
+  wiz={step:1,draft:{id:uid(),name:"",customer:"",phone:"",type:"Daire",areas:[],status:"Taslak",createdAt:Date.now(),updatedAt:Date.now()}};
+  wizardOverlay.classList.add("show"); renderWizard();
+}
+function closeWizard(){ wizardOverlay.classList.remove("show"); }
+document.getElementById("closeWizard").onclick=closeWizard;
+wizardOverlay.addEventListener("click",(e)=>{ if(e.target===wizardOverlay) closeWizard(); });
+
+document.getElementById("newProjectBtn").onclick=openWizard;
+document.getElementById("newProjectBtn2").onclick=openWizard;
+
+document.getElementById("quickInviteBtn").onclick=()=>{
+  const list=loadProjects();
+  if(!list.length){ alert("Önce bir proje oluştur."); return; }
+  const last=list.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
+  const url=makeInviteUrl(last.id,"proje_sahibi","");
+  copyText(url);
+};
+document.getElementById("quickMediaBtn").onclick=()=>{
+  const list=loadProjects();
+  if(!list.length){ alert("Önce bir proje oluştur."); return; }
+  openProject(list.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0].id);
+  // switch to media tab
+  setPdTab("media");
+};
+
+function renderWizard(){
+  stepLabel.textContent=`${wiz.step}/3`;
+  stepBar.style.width=(wiz.step/3*100)+"%";
+  document.getElementById("wizTitle").textContent=wiz.step===1?"Proje Bilgisi":wiz.step===2?"Alanları Ekle":"Proje Özeti";
+
+  if(wiz.step===1){
+    wizBody.innerHTML=`
+      <div class="grid2">
+        <div>
+          <label>Proje Adı <span class="small">(zorunlu)</span></label>
+          <input id="w_name" placeholder="Örn: Kaya Ailesi - 2+1 Tadilat" value="${escapeAttr(wiz.draft.name)}" />
+          <div class="err" id="errName">Proje adı gerekli.</div>
+        </div>
+        <div>
+          <label>Proje Tipi</label>
+          <select id="w_type">
+            ${["Daire","Villa","Dükkan","Bungalov","Prefabrik","Diğer"].map(x=>`<option ${wiz.draft.type===x?"selected":""}>${x}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div><label>Müşteri Adı <span class="small">(opsiyonel)</span></label><input id="w_customer" placeholder="Örn: Ahmet Kaya" value="${escapeAttr(wiz.draft.customer)}" /></div>
+        <div><label>Telefon <span class="small">(opsiyonel)</span></label><input id="w_phone" placeholder="05xx xxx xx xx" value="${escapeAttr(wiz.draft.phone)}" /></div>
+      </div>
+      <div class="hint" style="margin-top:10px">İpucu: Proje adını müşteri + tip şeklinde yaz (listede hızlı bulursun).</div>
+    `;
+    wizFooter.innerHTML=`<button class="btn secondary" id="w_cancel">Vazgeç</button><button class="btn" id="w_next">Devam</button>`;
+    document.getElementById("w_cancel").onclick=closeWizard;
+    document.getElementById("w_next").onclick=()=>{
+      const name=document.getElementById("w_name").value.trim();
+      if(!name){ document.getElementById("errName").style.display="block"; return; }
+      document.getElementById("errName").style.display="none";
+      wiz.draft.name=name;
+      wiz.draft.type=document.getElementById("w_type").value;
+      wiz.draft.customer=document.getElementById("w_customer").value.trim();
+      wiz.draft.phone=document.getElementById("w_phone").value.trim();
+      wiz.step=2; renderWizard();
+    };
+  }
+
+  if(wiz.step===2){
+    const allAreas=["Salon","Mutfak","Yatak Odası","Oturma Odası","Banyo","WC","Koridor","Balkon","Diğer"];
+    wizBody.innerHTML=`
+      <div>
+        <div style="font-weight:900">Alanları Ekle</div>
+        <div class="sub">Sadece olan alanları ekle. Detaylar proje içinde.</div>
+        <div class="areaChips" id="areaChips">
+          ${allAreas.map(a=>{
+            const added=wiz.draft.areas.some(x=>x.name===a);
+            return `<button class="areaChip ${added?"added":""}" data-area="${a}">${added?"✓ ":"＋ "}${a}</button>`;
+          }).join("")}
+        </div>
+        <div class="divider"></div>
+        <div class="list" id="addedAreas"></div>
+        <div class="hint" style="margin-top:8px">En az 1 alan ekleyip devam edebilirsin.</div>
+      </div>
+    `;
+    wizFooter.innerHTML=`<button class="btn secondary" id="w_back">Geri</button><button class="btn ghost" id="w_skip">Sonra eklerim</button><button class="btn" id="w_next2">Alanlara Geç</button>`;
+    document.getElementById("w_back").onclick=()=>{ wiz.step=1; renderWizard(); };
+    document.getElementById("w_skip").onclick=()=>{ wiz.step=3; renderWizard(); };
+    document.getElementById("w_next2").onclick=()=>{
+      if(!wiz.draft.areas.length){ alert("En az 1 alan ekle (örn: Salon)."); return; }
+      wiz.step=3; renderWizard();
+    };
+
+    document.querySelectorAll("#areaChips [data-area]").forEach(b=>b.onclick=()=>{
+      const a=b.dataset.area;
+      const idx=wiz.draft.areas.findIndex(x=>x.name===a);
+      if(idx>=0) wiz.draft.areas.splice(idx,1);
+      else wiz.draft.areas.push(makeArea(a==="Diğer"?"Diğer":a));
+      renderWizard();
+    });
+
+    const added=document.getElementById("addedAreas");
+    added.innerHTML=wiz.draft.areas.length ? wiz.draft.areas.map(a=>`
+      <div class="item">
+        <div class="meta"><div class="title">${escapeHtml(a.name)}</div><div class="mini">Detayları proje içinde düzenle</div></div>
+        <button class="btn secondary" style="padding:10px 12px;border-radius:14px" data-remove="${a.id}">Kaldır</button>
+      </div>`).join("") : `<div class="card flat"><div class="sub">Henüz alan eklenmedi.</div></div>`;
+    document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{
+      wiz.draft.areas = wiz.draft.areas.filter(x=>x.id!==b.dataset.remove);
+      renderWizard();
+    });
+  }
+
+  if(wiz.step===3){
+    const areaCount=wiz.draft.areas.length;
+    wizBody.innerHTML=`
+      <div style="font-weight:900">Proje Özeti</div>
+      <div class="divider"></div>
+      <div class="item">
+        <div class="meta">
+          <div class="title">${escapeHtml(wiz.draft.name)}</div>
+          <div class="mini">${escapeHtml(wiz.draft.type)}${wiz.draft.customer?" • "+escapeHtml(wiz.draft.customer):""}</div>
+          <div class="chips"><span class="chip">${areaCount} alan</span><span class="chip warn">Taslak</span></div>
+        </div>
+        <span class="pill2">3/3</span>
+      </div>
+      <div class="divider"></div>
+      <div class="hint">“Projeyi Başlat” dediğinde proje kaydedilir ve proje detayına geçersin.</div>
+    `;
+    wizFooter.innerHTML=`<button class="btn secondary" id="w_back2">Geri</button><button class="btn" id="w_start">Projeyi Başlat</button>`;
+    document.getElementById("w_back2").onclick=()=>{ wiz.step=2; renderWizard(); };
+    document.getElementById("w_start").onclick=()=>{
+      wiz.draft.updatedAt=Date.now();
+      // initialize media object
+      wiz.draft.media = wiz.draft.media || {};
+      const list=loadProjects();
+      list.unshift(wiz.draft);
+      saveProjects(list);
+      closeWizard();
+      renderLists();
+      openProject(wiz.draft.id);
+    };
+  }
+}
+
+/* ---------- Project Detail Tabs ---------- */
+function setPdTab(key){
+  document.querySelectorAll(".tab2").forEach(x=>x.classList.remove("active"));
+  document.querySelector(`.tab2[data-pdtab="${key}"]`).classList.add("active");
+  document.querySelectorAll(".pdTab").forEach(x=>x.style.display="none");
+  document.getElementById(key==="areas"?"pdTabAreas":key==="team"?"pdTabTeam":key==="media"?"pdTabMedia":"pdTabPricing").style.display="block";
+}
+document.querySelectorAll(".tab2").forEach(t=>t.onclick=()=>setPdTab(t.dataset.pdtab));
+document.getElementById("backToList").onclick=()=> setView("projects");
+
+/* ---------- Area + Jobs Accordion ---------- */
+function makeArea(name){
+  return {
+    id:uid(), name:name.trim(),
+    measures:{w:"",l:"",h:"",note:""},
+    jobs:{},
+    jobDetails:{
+      asma_tavan:{type:"Düz",ozel:false,profil:"U/C"},
+      boya:{kat:"2",renk:"Beyaz"},
+      fayans:{fire:"%10"}
+    },
+    media:{before:null, after:null, video:null},
+    updatedAt:Date.now()
+  };
+}
+
+function jobCheckbox(key,label,area){
+  const checked=!!(area.jobs && area.jobs[key]);
+  return `
+    <div class="jobRow">
+      <label for="${area.id}_${key}">${label}</label>
+      <input id="${area.id}_${key}" type="checkbox" data-a="${area.id}" data-job="${key}" ${checked?"checked":""} />
+    </div>`;
+}
+
+function renderAreas(){
+  const list=document.getElementById("areasList");
+  list.innerHTML="";
+  const areas=currentProject.areas||[];
+  if(!areas.length){
+    list.innerHTML=`<div class="card flat"><div class="sub">Henüz alan yok. “Alan ekle” ile başlayın.</div></div>`;
+    return;
+  }
+
+  areas.forEach(area=>{
+    const d=document.createElement("details");
+    d.open = true;
+
+    const asmaOn = !!area.jobs?.asma_tavan;
+    const boyaOn = !!area.jobs?.boya;
+    const fayansOn = !!area.jobs?.fayans;
+
+    d.innerHTML=`
+      <summary>
+        <span>${escapeHtml(area.name)}</span>
+        <span class="pill2">Detay</span>
+      </summary>
+
+      <div class="divider"></div>
+
+      <details open>
+        <summary><span>Ölçüler</span><span class="pill2">m</span></summary>
+        <div class="divider"></div>
+        <div class="grid2">
+          <div><label>En (m)</label><input data-m="w" data-a="${area.id}" value="${escapeAttr(area.measures?.w||"")}" placeholder="Örn: 3" /></div>
+          <div><label>Boy (m)</label><input data-m="l" data-a="${area.id}" value="${escapeAttr(area.measures?.l||"")}" placeholder="Örn: 4" /></div>
+        </div>
+        <div class="grid2">
+          <div><label>Yükseklik (m)</label><input data-m="h" data-a="${area.id}" value="${escapeAttr(area.measures?.h||"")}" placeholder="Örn: 2.7" /></div>
+          <div><label>Not</label><input data-m="note" data-a="${area.id}" value="${escapeAttr(area.measures?.note||"")}" placeholder="Örn: kolon var" /></div>
+        </div>
+      </details>
+
+      <details>
+        <summary><span>Yapılacak İşler</span><span class="pill2">Seç</span></summary>
+        <div class="divider"></div>
+
+        <div class="jobGroup">
+          ${jobCheckbox("asma_tavan","Asma tavan",area)}
+          ${jobCheckbox("siva","Sıva",area)}
+          ${jobCheckbox("boya","Boya",area)}
+          ${jobCheckbox("elektrik","Elektrik altyapı",area)}
+          ${jobCheckbox("aydinlatma","Aydınlatma",area)}
+          ${jobCheckbox("mutfak","Mutfak dolabı",area)}
+          ${jobCheckbox("fayans","Fayans / Seramik",area)}
+          ${jobCheckbox("parke","Parke / Laminat",area)}
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="hint"><strong>Alt Detaylar:</strong> İş seçince aşağıdaki ilgili bölüm açılır.</div>
+
+        <details ${asmaOn?"open":""} data-detail="asma_tavan" data-a="${area.id}">
+          <summary><span>Asma tavan detayı</span><span class="pill2">${asmaOn?"Açık":"Kapalı"}</span></summary>
+          <div class="divider"></div>
+          <div class="grid2">
+            <div>
+              <label>Tip</label>
+              <select data-d="asma_type" data-a="${area.id}">
+                ${["Düz","Havuz (kenar)","Gizli ışık","Ters gizli ışık","Spot kanalı","Özel şekil"].map(x=>`<option ${area.jobDetails?.asma_tavan?.type===x?"selected":""}>${x}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <label>Profil</label>
+              <select data-d="asma_profil" data-a="${area.id}">
+                ${["U/C","Demir (20x20)","Demir (20x30)"].map(x=>`<option ${area.jobDetails?.asma_tavan?.profil===x?"selected":""}>${x}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+          <div class="grid2">
+            <div>
+              <label>Özel işçilik</label>
+              <select data-d="asma_ozel" data-a="${area.id}">
+                <option value="false" ${!area.jobDetails?.asma_tavan?.ozel?"selected":""}>Hayır</option>
+                <option value="true" ${area.jobDetails?.asma_tavan?.ozel?"selected":""}>Evet (manuel fiyat)</option>
+              </select>
+            </div>
+            <div>
+              <label>Not</label>
+              <input data-d="asma_note" data-a="${area.id}" value="${escapeAttr(area.jobDetails?.asma_tavan?.note||"")}" placeholder="Örn: kavisli hat" />
+            </div>
+          </div>
+          <div class="hint">Not: Spot/LED miktarları elektrikçi ekranına taşınacak (bu demo akış).</div>
+        </details>
+
+        <details ${boyaOn?"open":""} data-detail="boya" data-a="${area.id}">
+          <summary><span>Boya detayı</span><span class="pill2">${boyaOn?"Açık":"Kapalı"}</span></summary>
+          <div class="divider"></div>
+          <div class="grid2">
+            <div><label>Kat sayısı</label>
+              <select data-d="boya_kat" data-a="${area.id}">
+                ${["1","2","3"].map(x=>`<option ${area.jobDetails?.boya?.kat===x?"selected":""}>${x}</option>`).join("")}
+              </select>
+            </div>
+            <div><label>Renk</label><input data-d="boya_renk" data-a="${area.id}" value="${escapeAttr(area.jobDetails?.boya?.renk||"")}" placeholder="Örn: Kırık beyaz" /></div>
+          </div>
+          <div class="hint">Kural: Boya seçiliyse ve sıva da seçiliyse metraj otomatik birleştirme motoru sonraki sprintte bağlanır.</div>
+        </details>
+
+        <details ${fayansOn?"open":""} data-detail="fayans" data-a="${area.id}">
+          <summary><span>Fayans/seramik detayı</span><span class="pill2">${fayansOn?"Açık":"Kapalı"}</span></summary>
+          <div class="divider"></div>
+          <div class="grid2">
+            <div><label>Fire</label>
+              <select data-d="fayans_fire" data-a="${area.id}">
+                ${["%5","%10","%12","%15"].map(x=>`<option ${area.jobDetails?.fayans?.fire===x?"selected":""}>${x}</option>`).join("")}
+              </select>
+            </div>
+            <div><label>Not</label><input data-d="fayans_note" data-a="${area.id}" value="${escapeAttr(area.jobDetails?.fayans?.note||"")}" placeholder="Örn: 60x120" /></div>
+          </div>
+          <div class="hint">Kural: ebat büyüdükçe fire artar (kural motoru sonraki sprint).</div>
+        </details>
+
+      </details>
+
+      <div class="divider"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn ghost" data-del="${area.id}">Alanı sil</button>
+      </div>
+    `;
+    list.appendChild(d);
+  });
+
+  // binds (measures)
+  list.querySelectorAll("input[data-m]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const aid=inp.dataset.a, key=inp.dataset.m;
+      const a=currentProject.areas.find(x=>x.id===aid);
+      a.measures=a.measures||{};
+      a.measures[key]=inp.value;
+      touchProject();
+      renderTeamInvites(); // keep in sync
+      renderMediaAreaSelect();
+    });
+  });
+
+  // binds (jobs)
+  list.querySelectorAll("input[type=checkbox][data-job]").forEach(cb=>{
+    cb.addEventListener("change", ()=>{
+      const aid=cb.dataset.a, key=cb.dataset.job;
+      const a=currentProject.areas.find(x=>x.id===aid);
+      a.jobs=a.jobs||{};
+      a.jobs[key]=cb.checked;
+      touchProject();
+      renderAreas();       // re-render to open/close relevant detail blocks
+      renderTeamInvites(); // update trades
+    });
+  });
+
+  // binds (detail fields)
+  list.querySelectorAll("[data-d]").forEach(el=>{
+    el.addEventListener("input", ()=>{
+      const aid=el.dataset.a;
+      const a=currentProject.areas.find(x=>x.id===aid);
+      a.jobDetails=a.jobDetails||{};
+      // route
+      if(el.dataset.d.startsWith("asma_")){
+        a.jobDetails.asma_tavan=a.jobDetails.asma_tavan||{};
+        if(el.dataset.d==="asma_type") a.jobDetails.asma_tavan.type=el.value;
+        if(el.dataset.d==="asma_profil") a.jobDetails.asma_tavan.profil=el.value;
+        if(el.dataset.d==="asma_ozel") a.jobDetails.asma_tavan.ozel=(el.value==="true");
+        if(el.dataset.d==="asma_note") a.jobDetails.asma_tavan.note=el.value;
+      }
+      if(el.dataset.d.startsWith("boya_")){
+        a.jobDetails.boya=a.jobDetails.boya||{};
+        if(el.dataset.d==="boya_kat") a.jobDetails.boya.kat=el.value;
+        if(el.dataset.d==="boya_renk") a.jobDetails.boya.renk=el.value;
+      }
+      if(el.dataset.d.startsWith("fayans_")){
+        a.jobDetails.fayans=a.jobDetails.fayans||{};
+        if(el.dataset.d==="fayans_fire") a.jobDetails.fayans.fire=el.value;
+        if(el.dataset.d==="fayans_note") a.jobDetails.fayans.note=el.value;
+      }
+      touchProject();
+    });
+  });
+
+  // deletes
+  list.querySelectorAll("button[data-del]").forEach(btn=>{
+    btn.onclick=()=>{
+      const id=btn.dataset.del;
+      currentProject.areas=currentProject.areas.filter(x=>x.id!==id);
+      touchProject();
+      renderAreas();
+      renderTeamInvites();
+      renderMediaAreaSelect();
+      resetMediaUI();
+    };
+  });
+}
+
+document.getElementById("addAreaBtn").onclick=()=>{
+  const name=prompt("Alan adı gir (örn: Antre / Oda 3):");
+  if(!name) return;
+  currentProject.areas=currentProject.areas||[];
+  currentProject.areas.push(makeArea(name));
+  touchProject();
+  renderAreas();
+  renderTeamInvites();
+  renderMediaAreaSelect();
+};
+
+/* ---------- Team (Invite links) ---------- */
+function makeInviteUrl(projectId, role, trade){
+  const base="https://buildtes.com/app";
+  const u=new URL(base);
+  u.searchParams.set("project", projectId);
+  u.searchParams.set("role", role);
+  if(trade) u.searchParams.set("trade", trade);
+  return u.toString();
+}
+function copyText(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>alert("Kopyalandı."),()=>prompt("Kopyalayın:", text));
+  } else {
+    prompt("Kopyalayın:", text);
+  }
+}
+function renderTeamInvites(){
+  if(!currentProject) return;
+
+  document.getElementById("projectInvitePreview").textContent = makeInviteUrl(currentProject.id, "proje_sahibi", "");
+  const trades = selectedTradesFromProject(currentProject);
+  const list = document.getElementById("tradeInviteList");
+  list.innerHTML = "";
+
+  if(!trades.length){
+    list.innerHTML = `<div class="card flat"><div class="sub">Henüz iş seçilmedi. Alanlarda iş seçince usta linkleri burada oluşur.</div></div>`;
+    return;
+  }
+
+  trades.forEach(tr=>{
+    const url = makeInviteUrl(currentProject.id, "usta", tr);
+    const row = document.createElement("div");
+    row.className="item";
+    row.innerHTML = `
+      <div class="meta">
+        <div class="title">${escapeHtml(getTradeLabel(tr))} Ustası</div>
+        <div class="mini">Bu link sadece ilgili kalemleri gösterir (demo).</div>
+        <div class="chips"><span class="chip">${escapeHtml(tr)}</span></div>
+      </div>
+      <button class="btn secondary" style="padding:10px 12px;border-radius:14px" data-copy="${encodeURIComponent(url)}">Kopyala</button>
+    `;
+    list.appendChild(row);
+  });
+
+  list.querySelectorAll("[data-copy]").forEach(b=>{
+    b.onclick=()=> copyText(decodeURIComponent(b.dataset.copy));
+  });
+}
+document.getElementById("copyProjectInviteBtn").onclick=()=>{
+  if(!currentProject) return;
+  copyText(makeInviteUrl(currentProject.id,"proje_sahibi",""));
+};
+
+/* ---------- Media (Before/After + Video WebM) ---------- */
+const mediaAreaSelect = document.getElementById("mediaAreaSelect");
+const beforeFile = document.getElementById("beforeFile");
+const beforeImg = document.getElementById("beforeImg");
+const afterImg = document.getElementById("afterImg");
+const beforeEmpty = document.getElementById("beforeEmpty");
+const afterEmpty = document.getElementById("afterEmpty");
+const genAfterBtn = document.getElementById("genAfterBtn");
+const genVideoBtn = document.getElementById("genVideoBtn");
+const downloadVideoLink = document.getElementById("downloadVideoLink");
+const videoCanvas = document.getElementById("videoCanvas");
+const videoHint = document.getElementById("videoHint");
+
+function getSelectedArea(){
+  if(!currentProject) return null;
+  const id = mediaAreaSelect.value;
+  return currentProject.areas.find(a=>a.id===id) || null;
+}
+function renderMediaAreaSelect(){
+  if(!currentProject) return;
+  mediaAreaSelect.innerHTML="";
+  (currentProject.areas||[]).forEach(a=>{
+    const opt=document.createElement("option");
+    opt.value=a.id; opt.textContent=a.name;
+    mediaAreaSelect.appendChild(opt);
+  });
+  if(!currentProject.areas?.length){
+    const opt=document.createElement("option");
+    opt.value=""; opt.textContent="Önce alan ekle";
+    mediaAreaSelect.appendChild(opt);
+  }
+  // keep selection if possible
+  if(mediaAreaSelect.options.length) mediaAreaSelect.value = mediaAreaSelect.options[0].value;
+  loadMediaUIFromArea();
+}
+mediaAreaSelect.addEventListener("change", ()=> loadMediaUIFromArea());
+
+function resetMediaUI(){
+  beforeImg.style.display="none"; afterImg.style.display="none";
+  beforeEmpty.style.display="block"; afterEmpty.style.display="block";
+  downloadVideoLink.style.display="none";
+  videoCanvas.style.display="none";
+  videoHint.style.display="block";
+}
+
+function loadMediaUIFromArea(){
+  resetMediaUI();
+  const area = getSelectedArea();
+  if(!area) return;
+
+  if(area.media?.before){
+    beforeImg.src = area.media.before;
+    beforeImg.style.display="block";
+    beforeEmpty.style.display="none";
+  }
+  if(area.media?.after){
+    afterImg.src = area.media.after;
+    afterImg.style.display="block";
+    afterEmpty.style.display="none";
+  }
+  if(area.media?.video){
+    downloadVideoLink.href = area.media.video;
+    downloadVideoLink.style.display="inline-flex";
+    videoHint.style.display="none";
+  }
+  // show canvas only during generation
+}
+
+beforeFile.addEventListener("change", async ()=>{
+  const area = getSelectedArea();
+  if(!area) return;
+  const file = beforeFile.files && beforeFile.files[0];
+  if(!file) return;
+
+  const dataUrl = await fileToDataURL(file);
+  area.media = area.media || {};
+  area.media.before = dataUrl;
+  // reset after/video for this area when before changes
+  area.media.after = null;
+  area.media.video = null;
+
+  touchProject();
+  loadMediaUIFromArea();
+});
+
+genAfterBtn.addEventListener("click", async ()=>{
+  const area = getSelectedArea();
+  if(!area) return;
+  if(!area.media?.before){ alert("Önce BEFORE yükle."); return; }
+
+  // Create "after" by applying a simple enhancement filter (demo)
+  const after = await makeEnhancedAfter(area.media.before);
+  area.media.after = after;
+  area.media.video = null; // reset
+  touchProject();
+  loadMediaUIFromArea();
+});
+
+genVideoBtn.addEventListener("click", async ()=>{
+  const area = getSelectedArea();
+  if(!area) return;
+  if(!area.media?.before || !area.media?.after){
+    alert("Video için BEFORE + AFTER gerekli."); return;
+  }
+  downloadVideoLink.style.display="none";
+  videoHint.textContent="Video üretiliyor... (yaklaşık 6 sn)";
+  videoHint.style.display="block";
+
+  const webmUrl = await makeCrossfadeVideo(area.media.before, area.media.after, 6);
+  area.media.video = webmUrl;
+  touchProject();
+  loadMediaUIFromArea();
+});
+
+/* ----- Media helpers ----- */
+function fileToDataURL(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(r.result);
+    r.onerror=reject;
+    r.readAsDataURL(file);
+  });
+}
+function loadImage(src){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=reject;
+    img.crossOrigin="anonymous";
+    img.src=src;
+  });
+}
+async function makeEnhancedAfter(beforeDataUrl){
+  const img = await loadImage(beforeDataUrl);
+  const c = document.createElement("canvas");
+  const w = 1280;
+  const h = Math.round(w * (img.height/img.width));
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  // fake improvement: brightness/contrast + slight warm tint
+  ctx.filter = "contrast(1.15) brightness(1.05) saturate(1.15)";
+  ctx.drawImage(img, 0, 0, w, h);
+  ctx.filter = "none";
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = "#f59e0b";
+  ctx.fillRect(0,0,w,h);
+  ctx.globalAlpha = 1;
+  // add subtle vignette
+  const g = ctx.createRadialGradient(w/2,h/2, Math.min(w,h)*0.25, w/2,h/2, Math.max(w,h)*0.75);
+  g.addColorStop(0,"rgba(0,0,0,0)");
+  g.addColorStop(1,"rgba(0,0,0,0.18)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,w,h);
+  return c.toDataURL("image/jpeg", 0.92);
+}
+
+async function makeCrossfadeVideo(beforeSrc, afterSrc, seconds){
+  const before = await loadImage(beforeSrc);
+  const after = await loadImage(afterSrc);
+
+  // set canvas visible
+  videoCanvas.style.display="block";
+  const ctx = videoCanvas.getContext("2d");
+
+  // fit to canvas
+  const cw = videoCanvas.width, ch = videoCanvas.height;
+
+  function drawCover(img, alpha){
+    const ir = img.width/img.height;
+    const cr = cw/ch;
+    let dw, dh, dx, dy;
+    if(ir > cr){ // wider
+      dh = ch; dw = ch*ir; dx = (cw - dw)/2; dy = 0;
+    } else {
+      dw = cw; dh = cw/ir; dx = 0; dy = (ch - dh)/2;
+    }
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.globalAlpha = 1;
+  }
+
+  // setup recorder
+  const stream = videoCanvas.captureStream(30);
+  const chunks=[];
+  const rec = new MediaRecorder(stream, {mimeType: "video/webm;codecs=vp9"});
+  rec.ondataavailable = (e)=>{ if(e.data && e.data.size) chunks.push(e.data); };
+
+  const started = new Promise((resolve)=>{ rec.onstart=resolve; });
+  const stopped = new Promise((resolve)=>{ rec.onstop=resolve; });
+
+  rec.start();
+  await started;
+
+  const fps=30;
+  const totalFrames = Math.max(1, Math.floor(seconds*fps));
+  for(let i=0;i<totalFrames;i++){
+    const t = i/(totalFrames-1);
+    // crossfade: hold before 20%, fade 60%, hold after 20%
+    let a;
+    if(t<0.2){ a=0; }
+    else if(t>0.8){ a=1; }
+    else { a=(t-0.2)/0.6; }
+    ctx.clearRect(0,0,cw,ch);
+    drawCover(before, 1);
+    drawCover(after, a);
+    // small caption
+    ctx.fillStyle="rgba(0,0,0,.35)";
+    ctx.fillRect(18,18, 240, 46);
+    ctx.fillStyle="white";
+    ctx.font="bold 20px ui-sans-serif,system-ui";
+    ctx.fillText("Buildtes", 32, 48);
+    await new Promise(r=>setTimeout(r, 1000/fps));
+  }
+
+  rec.stop();
+  await stopped;
+
+  const blob = new Blob(chunks, {type:"video/webm"});
+  const url = URL.createObjectURL(blob);
+  videoHint.textContent="Video hazır.";
+  return url;
+}
+
+/* ---------- Project open/save ---------- */
+document.getElementById("pdSaveBtn").onclick=()=> saveCurrentProject();
+
+function touchProject(){
+  if(!currentProject) return;
+  currentProject.updatedAt = Date.now();
+  // keep status logic simple
+  currentProject.status = currentProject.status || "Taslak";
+}
+function saveCurrentProject(){
+  const list=loadProjects();
+  const idx=list.findIndex(x=>x.id===currentProjectId);
+  if(idx<0){ alert("Proje kaydedilemedi."); return; }
+  touchProject();
+  list[idx]=currentProject;
+  saveProjects(list);
+  renderLists();
+  alert("Kaydedildi.");
+}
+
+function openProject(id){
+  currentProjectId=id;
+  const p=loadProjects().find(x=>x.id===id);
+  if(!p){ alert("Proje bulunamadı."); return; }
+  currentProject = p;
+
+  // ensure structures
+  currentProject.areas = currentProject.areas || [];
+  currentProject.media = currentProject.media || {};
+
+  document.getElementById("pdTitle").textContent = currentProject.name || "Proje";
+  document.getElementById("pdMeta").textContent =
+    `${currentProject.type||""}${currentProject.customer?" • "+currentProject.customer:""}${currentProject.phone?" • "+currentProject.phone:""} • ${formatDate(currentProject.updatedAt||currentProject.createdAt)}`;
+
+  // status
+  const chip = document.getElementById("pdStatusChip");
+  chip.textContent = currentProject.status || "Taslak";
+  chip.className = "chip " + ((currentProject.status||"Taslak")==="Teklif Hazır" ? "good" : (currentProject.status||"Taslak")==="Taslak" ? "warn" : "");
+
+  // project invite
+  document.getElementById("projectInvitePreview").textContent = makeInviteUrl(currentProject.id, "proje_sahibi", "");
+
+  renderAreas();
+  renderTeamInvites();
+  renderMediaAreaSelect();
+  resetMediaUI();
+  setView("projectDetail");
+  setPdTab("areas"); renderPricing();
+}
+
+/* ---------- Profile ---------- */
+const prof=loadProfile();
+document.getElementById("profileName").value=prof.name||"";
+document.getElementById("profileRole").value=prof.role||"usta";
+document.getElementById("profileNote").value=prof.note||"";
+document.getElementById("saveProfileBtn").onclick=()=>{
+  saveProfile({
+    name:document.getElementById("profileName").value.trim(),
+    role:document.getElementById("profileRole").value,
+    note:document.getElementById("profileNote").value.trim()
+  });
+  alert("Profil kaydedildi.");
+};
+document.getElementById("resetBtn").onclick=()=>{
+  if(!confirm("Tüm yerel veriler silinsin mi? (projeler + profil)")) return;
+  localStorage.removeItem(LS_KEY);
+  localStorage.removeItem(LS_PROFILE);
+  projects=[];
+  currentProject=null;
+  currentProjectId=null;
+  renderLists();
+  alert("Sıfırlandı.");
+  setView("home");
+};
+
+
+/* ---------- Usta Mode (trade-filtered simulation) ---------- */
+function toNum(x){
+  const n=parseFloat((x||"").toString().replace(",","."));
+  return isFinite(n)?n:NaN;
+}
+function calcQty(area, trade){
+  const w=toNum(area.measures?.w), l=toNum(area.measures?.l), h=toNum(area.measures?.h);
+  const m2 = (isFinite(w)&&isFinite(l)) ? (w*l) : NaN;
+  const per = (isFinite(w)&&isFinite(l)) ? (2*(w+l)) : NaN;
+  const wall = (isFinite(w)&&isFinite(l)&&isFinite(h)) ? (2*(w+l)*h) : NaN;
+
+  // defaults by trade
+  if(trade==="asma_tavan"){
+    const t=(area.jobDetails?.asma_tavan?.type||"Düz").toLowerCase();
+    if(!isFinite(m2) && !isFinite(per)) return NaN;
+    if(t.includes("havuz")) return per;
+    if(t.includes("gizli") || t.includes("ters") || t.includes("spot kanalı")) return isFinite(per)?(per*1.5):NaN;
+    return m2;
+  }
+  if(trade==="siva" || trade==="boya"){
+    // wall + ceiling (+ asma tavan m2 if selected)
+    if(!isFinite(wall) && !isFinite(m2)) return NaN;
+    let total = 0;
+    if(isFinite(wall)) total += wall;
+    if(isFinite(m2)) total += m2; // ceiling
+    if(area.jobs?.asma_tavan && isFinite(m2)) total += m2; // add asma tavan surface to plaster/paint pool
+    return total;
+  }
+  if(trade==="fayans" || trade==="parke"){
+    if(!isFinite(m2)) return NaN;
+    let waste = (trade==="parke") ? 0.05 : 0.0;
+    if(trade==="fayans"){
+      const fireStr=(area.jobDetails?.fayans?.fire||"%10").replace("%","");
+      const fire=toNum(fireStr);
+      if(isFinite(fire)) waste = fire/100;
+      else waste = 0.10;
+    }
+    return m2*(1+waste);
+  }
+  // default "adet/set"
+  return 1;
+}
+function fmtTL(n){
+  if(!isFinite(n)) return "—";
+  try{
+    return "₺ " + n.toLocaleString("tr-TR",{minimumFractionDigits:0,maximumFractionDigits:2});
+  }catch(e){
+    return "₺ " + Math.round(n*100)/100;
+  }
+}
+
+function openUstaMode(projectId, trade){
+  // hide bottom nav to avoid confusion
+  const nav=document.querySelector(".nav");
+  if(nav) nav.style.display="none";
+
+  // open project
+  const p=loadProjects().find(x=>x.id===projectId);
+  if(!p){
+    setView("usta");
+    document.getElementById("udTitle").textContent="Usta Paneli (Proje bulunamadı)";
+    document.getElementById("udMeta").textContent="Bu cihazda proje kaydı yok. (Simülasyon) Proje sahibinin cihazında çalışır.";
+    document.getElementById("udTradeBadge").textContent=getTradeLabel(trade||"");
+    document.getElementById("udEmpty").style.display="block";
+    document.getElementById("udAreaList").innerHTML="";
+    document.getElementById("udGrandTotal").textContent="₺ 0";
+    return;
+  }
+
+  currentProjectId=projectId;
+  currentProject=p;
+  touchProject();
+
+  const tlabel=getTradeLabel(trade||"");
+  document.getElementById("udTitle").textContent = tlabel ? (tlabel + " Ustası") : "Usta Paneli";
+  document.getElementById("udMeta").textContent =
+    `${currentProject.name||""}${currentProject.customer?" • "+currentProject.customer:""} • ${formatDate(currentProject.updatedAt||currentProject.createdAt)}`;
+  document.getElementById("udTradeBadge").textContent = tlabel || "—";
+
+  const chipBox=document.getElementById("udChips");
+  chipBox.innerHTML = `<span class="chip">${escapeHtml(currentProject.type||"")}</span><span class="chip">${escapeHtml(trade||"")}</span>`;
+
+  const list=document.getElementById("udAreaList");
+  list.innerHTML="";
+
+  const areas=(currentProject.areas||[]).filter(a=>a.jobs && a.jobs[trade]);
+  document.getElementById("udEmpty").style.display = areas.length ? "none" : "block";
+
+  let grand=0;
+
+  areas.forEach(a=>{
+    a.pricing=a.pricing||{};
+    a.pricing[trade]=a.pricing[trade]||{qty:"",unit:"",note:""};
+    const stored=a.pricing[trade];
+
+    const autoQty = calcQty(a, trade);
+    const qtyVal = stored.qty!=="" ? toNum(stored.qty) : autoQty;
+    const unitVal = toNum(stored.unit);
+    const total = (isFinite(qtyVal)&&isFinite(unitVal)) ? (qtyVal*unitVal) : NaN;
+    if(isFinite(total)) grand += total;
+
+    const row=document.createElement("div");
+    row.className="item";
+    row.style.flexDirection="column";
+    row.style.alignItems="stretch";
+    row.innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div class="meta" style="min-width:220px">
+          <div class="title">${escapeHtml(a.name)}</div>
+          <div class="mini">
+            Ölçü: ${escapeHtml(a.measures?.w||"—")} × ${escapeHtml(a.measures?.l||"—")} × ${escapeHtml(a.measures?.h||"—")}
+          </div>
+          <div class="chips" style="margin-top:6px">
+            <span class="chip">Oto qty: ${isFinite(autoQty)?autoQty.toFixed(2):"—"}</span>
+            <span class="chip">Toplam: <span data-total="${a.id}">${fmtTL(total)}</span></span>
+          </div>
+        </div>
+        <div class="smallrow" style="justify-content:flex-end">
+          <div class="badge">Birim</div>
+          <input class="miniInput" data-unit="${a.id}" placeholder="₺ / birim" value="${escapeAttr(stored.unit||"")}" />
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid2">
+        <div>
+          <label>Miktar (qty)</label>
+          <input data-qty="${a.id}" placeholder="Oto hesap gelir (istersen değiştir)" value="${escapeAttr(stored.qty||"")}" />
+          <div class="hint">Boş bırakırsan otomatik miktar kullanılır.</div>
+        </div>
+        <div>
+          <label>Not</label>
+          <input data-note="${a.id}" placeholder="Örn: özel işçilik var" value="${escapeAttr(stored.note||"")}" />
+        </div>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+
+  function recalc(){
+    let g=0;
+    areas.forEach(a=>{
+      const stored=a.pricing[trade]||{};
+      const autoQty=calcQty(a, trade);
+      const qty = stored.qty!=="" ? toNum(stored.qty) : autoQty;
+      const unit = toNum(stored.unit);
+      const total = (isFinite(qty)&&isFinite(unit)) ? qty*unit : NaN;
+      const el = document.querySelector(`[data-total="${a.id}"]`);
+      if(el) el.textContent = fmtTL(total);
+      if(isFinite(total)) g+=total;
+    });
+    document.getElementById("udGrandTotal").textContent = fmtTL(g);
+  }
+
+  // bind inputs
+  document.querySelectorAll("[data-unit]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const aid=inp.dataset.unit;
+      const a=areas.find(x=>x.id===aid);
+      a.pricing[trade].unit = inp.value;
+      touchProject();
+      recalc();
+    });
+  });
+  document.querySelectorAll("[data-qty]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const aid=inp.dataset.qty;
+      const a=areas.find(x=>x.id===aid);
+      a.pricing[trade].qty = inp.value;
+      touchProject();
+      recalc();
+    });
+  });
+  document.querySelectorAll("[data-note]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const aid=inp.dataset.note;
+      const a=areas.find(x=>x.id===aid);
+      a.pricing[trade].note = inp.value;
+      touchProject();
+    });
+  });
+
+  document.getElementById("udSaveBtn").onclick=()=>{
+    // persist
+    const listAll=loadProjects();
+    const idx=listAll.findIndex(x=>x.id===currentProjectId);
+    if(idx>=0){
+      touchProject();
+      listAll[idx]=currentProject;
+      saveProjects(listAll);
+      alert("Kaydedildi (simülasyon).");
+    }else{
+      alert("Kayıt bulunamadı.");
+    }
+  };
+
+  document.getElementById("udCopyBtn").onclick=()=>{
+    const lines=[];
+    lines.push("BUILDTES • USTA ÖZETİ");
+    lines.push("Proje: "+(currentProject.name||""));
+    lines.push("Kalem: "+getTradeLabel(trade||""));
+    lines.push("—");
+    areas.forEach(a=>{
+      const st=a.pricing?.[trade]||{};
+      const autoQty=calcQty(a, trade);
+      const qty = st.qty!=="" ? toNum(st.qty) : autoQty;
+      const unit = toNum(st.unit);
+      const total = (isFinite(qty)&&isFinite(unit)) ? qty*unit : NaN;
+      lines.push(`• ${a.name}: qty=${isFinite(qty)?qty.toFixed(2):"—"} | birim=${isFinite(unit)?fmtTL(unit):"—"} | toplam=${fmtTL(total)}`);
+    });
+    lines.push("—");
+    const gtText=document.getElementById("udGrandTotal").textContent;
+    lines.push("GENEL TOPLAM: "+gtText);
+    copyText(lines.join("\n"));
+  };
+
+  recalc();
+  setView("usta");
+}
+
+
+/* ---------- Pricing (Project Owner) ---------- */
+function renderPricing(){
+  if(!currentProject) return;
+  const list=document.getElementById("pricingList");
+  list.innerHTML="";
+  let grand=0;
+
+  const trades = selectedTradesFromProject(currentProject);
+  if(!trades.length){
+    list.innerHTML='<div class="card flat"><div class="sub">Henüz fiyatlandırılacak kalem yok.</div></div>';
+    document.getElementById("pricingGrand").textContent="₺ 0";
+    return;
+  }
+
+  trades.forEach(tr=>{
+    const label=getTradeLabel(tr);
+    let subtotal=0;
+
+    (currentProject.areas||[]).forEach(a=>{
+      if(!a.jobs?.[tr]) return;
+      const p=a.pricing?.[tr];
+      if(p){
+        const q=parseFloat(p.qty)||calcQty(a,tr);
+        const u=parseFloat(p.unit)||0;
+        if(isFinite(q)&&isFinite(u)) subtotal+=q*u;
+      }
+    });
+
+    // owner override
+    currentProject.ownerPricing=currentProject.ownerPricing||{};
+    const ov=currentProject.ownerPricing[tr]||{};
+    const final = (ov.override && isFinite(parseFloat(ov.amount))) ? parseFloat(ov.amount) : subtotal;
+    grand+=final;
+
+    const row=document.createElement("div");
+    row.className="item";
+    row.innerHTML=`
+      <div class="meta">
+        <div class="title">${label}</div>
+        <div class="mini">Ustalardan gelen: ₺ ${subtotal.toLocaleString("tr-TR")}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:180px">
+        <label class="small">
+          <input type="checkbox" data-ov="${tr}" ${ov.override?"checked":""}/> Manuel belirle
+        </label>
+        <input placeholder="₺ Tutar" data-amt="${tr}" value="${ov.amount||""}"/>
+        <div class="small">Kullanılan: ₺ ${final.toLocaleString("tr-TR")}</div>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+
+  document.getElementById("pricingGrand").textContent="₺ "+grand.toLocaleString("tr-TR");
+
+  // binds
+  list.querySelectorAll("[data-ov]").forEach(cb=>{
+    cb.onchange=()=>{
+      const tr=cb.dataset.ov;
+      currentProject.ownerPricing=currentProject.ownerPricing||{};
+      currentProject.ownerPricing[tr]=currentProject.ownerPricing[tr]||{};
+      currentProject.ownerPricing[tr].override=cb.checked;
+      touchProject();
+      renderPricing();
+    };
+  });
+  list.querySelectorAll("[data-amt]").forEach(inp=>{
+    inp.oninput=()=>{
+      const tr=inp.dataset.amt;
+      currentProject.ownerPricing=currentProject.ownerPricing||{};
+      currentProject.ownerPricing[tr]=currentProject.ownerPricing[tr]||{};
+      currentProject.ownerPricing[tr].amount=inp.value;
+      touchProject();
+      renderPricing();
+    };
+  });
+}
+
+/* ---------- Init ---------- */
+renderLists();
+
+// URL param bootstrap for usta links (simulation)
+(function(){
+  const qs = new URLSearchParams(location.search);
+  const role = (qs.get("role")||"").toLowerCase();
+  const projectId = qs.get("project")||"";
+  const trade = (qs.get("trade")||"").toLowerCase();
+  if(role==="usta" && projectId){
+    openUstaMode(projectId, trade);
+  }
+})();
+</script>
+</body>
+</html>
